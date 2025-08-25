@@ -42,7 +42,18 @@ export class PlacesService {
     )
   }
 
-  removeUserPlace(place: Place) {}
+  removeUserPlace(place: Place) {
+    const prevPlaces = this.userPlaces();
+    this.userPlaces.set(prevPlaces.filter((p) => p.id!==place.id ));
+    return this.httpClient.delete("http://localhost:3000/user-places/"+place.id).pipe(
+      catchError(error => {
+        console.log(error);
+        this.userPlaces.set(prevPlaces);
+        this.errorService.showError("error occured while deletion");
+        return throwError(() => new Error("error occured while deletion"));
+      })
+    )
+  }
 
   private fetchPlaces(endpoint: string, errorMsg: string){
     return this.httpClient.get<{places: Place[]}>("http://localhost:3000"+endpoint)
