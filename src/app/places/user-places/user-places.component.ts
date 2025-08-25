@@ -15,20 +15,18 @@ import { PlacesService } from '../places.service';
   imports: [PlacesContainerComponent, PlacesComponent],
 })
 export class UserPlacesComponent implements OnInit {
-
-  places = signal<Place[] | undefined> (undefined);
   errors = signal('');
   isFetching = signal(false);
 
   private destroyRef = inject(DestroyRef);
   private placesService = inject(PlacesService);
+  places=this.placesService.loadedUserPlaces;
 
 
   ngOnInit(): void {
     this.isFetching.set(true);
     const subscription = this.placesService.loadUserPlaces()
     .subscribe({
-      next: (places) => this.places.set(places),
       error: (error)=> this.errors.set(error.message),
       complete: ()=> this.isFetching.set(false)
     });

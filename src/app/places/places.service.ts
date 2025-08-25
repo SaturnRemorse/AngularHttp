@@ -2,7 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 
 import { Place } from './place.model';
 import { HttpClient } from '@angular/common/http';
-import { catchError, map, throwError } from 'rxjs';
+import { catchError, map, tap, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -18,10 +18,13 @@ export class PlacesService {
   }
 
   loadUserPlaces() {
-    return this.fetchPlaces("/user-places","error in loading user places");
+    return this.fetchPlaces("/user-places","error in loading user places").pipe(tap({
+      next: (userPlaces) => this.userPlaces.set(userPlaces),
+    }));
   }
 
   addPlaceToUserPlaces(place: Place) {
+    this.userPlaces.update(prevPlaces => [...prevPlaces, place]);
     return this.httpClient.put('http://localhost:3000/user-places', {
       placeId: place.id
     })
